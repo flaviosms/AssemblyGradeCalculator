@@ -1,3 +1,4 @@
+;Início do cabeçalho
 .486
 .model flat, stdcall
 option casemap :none
@@ -11,66 +12,67 @@ option casemap :none
         includelib \masm32\lib\user32.lib
         includelib \masm32\lib\kernel32.lib
         includelib \masm32\lib\masm32.lib
-.data
-        nota               dq      ?
-        nnotas               dq      ?
-        somatorio          dq      ?
-        Result          dq      ?
-        contador  dd  0.0
-        incremento dq 1.0
-        const7 dd 7.0
-        const5 dd 5.0
-        const4 dd 4.0
-        constpesomedia dd 0.6
-        constpesofinal dd 0.4
+;Fim do Cabeçalho
+.data                                    ;dq=quadruple word=8 bytes ### dd=double word=4 bytes
+        nota               dq      ?     ;Guarda nota quando forem inseridas
+        nnotas               dq      ?   ;Guarda o numero de notas que vão ser inseridas
+        somatorio          dq      ?     ;Guarda o somatório das notas
+        Result          dq      ?        ;Guarda o resultado Final da operção em primeiro caso vai ser a média e em segundo caso a nota da final.
+        contador  dd  0.0                ;Guarda o contador de iteracoes
+        incremento dq 1.0                ;Constante de usada para incremento em 1
+        const7 dd 7.0                    ;Constante 7
+        const5 dd 5.0                    ;Constante 5
+        const4 dd 4.0                    ;Constante 4
+        constpesomedia dd 0.6            ;Constante 0.6
+        constpesofinal dd 0.4            ;Constante 0.4
 
-        opcao dd ?
+        opcao dd ?                       ;Guarda a opcao de reiniciar o programa ao fim da execucao
 
-        aszBemvindo      db      0Dh, 0Ah, 'Bem vindo ao calculador de notas ultracomplicado.', 0
-        aszPromptnnotas      db      0Dh, 0Ah, 'Insira o numero de notas: ', 0
-        aszPromptnota      db      0Dh, 0Ah, 'Insira a uma nota: ', 0
-        aszMsgResult    db      0Dh, 0Ah, 'Result: ', 0
-        asznovoaluno   db      0Dh, 0Ah, 0Dh, 0Ah, "Digite 1 para calcular a media de outro aluno ou qualquer outra tecla para sair:", 0
-        aszaprovado   db      0Dh, 0Ah, 0Dh, 0Ah, "Estas notas deixam voce aprovado na disciplina", 0
+        aszBemvindo      db      0Dh, 0Ah, 'Bem vindo ao calculador de notas ultracomplicado.', 0                                         ;Mensagem de Boas vindas
+        aszPromptnnotas      db      0Dh, 0Ah, 'Insira o numero de notas: ', 0                                                            ;Mensagem para inserir numero de notas
+        aszPromptnota      db      0Dh, 0Ah, 'Insira a uma nota: ', 0                                                                     ;Mensagem para inserir nota
+        aszMsgResult    db      0Dh, 0Ah, 'Result: ', 0                                                                                   ;Mensagem para exibir resultado
+        asznovoaluno   db      0Dh, 0Ah, 0Dh, 0Ah, "Digite 1 para calcular a media de outro aluno ou qualquer outra tecla para sair:", 0  ;Mensagem de resetar o programa
+        aszaprovado   db      0Dh, 0Ah, 0Dh, 0Ah, "Estas notas deixam voce aprovado na disciplina", 0                                     ;Mensagem de aprovado
 
-        aszreprovado   db      0Dh, 0Ah, 0Dh, 0Ah, "Estas notas deixam voce reprovado na disciplina", 0
+        aszreprovado   db      0Dh, 0Ah, 0Dh, 0Ah, "Estas notas deixam voce reprovado na disciplina", 0                                   ;Mensagem de reprovado
 
-        aszfinal   db      0Dh, 0Ah, 0Dh, 0Ah, "Estas notas deixam voce na prova final da disciplina precisando de :", 0
+        aszfinal   db      0Dh, 0Ah, 0Dh, 0Ah, "Estas notas deixam voce na prova final da disciplina precisando de :", 0                  ;Mensagem de nota da final
 
-        hConsoleOutput  HANDLE  ?
-        hConsoleInput   HANDLE  ?
-        Buffer          db      1024 dup(?)
-        BufLen          dd      ?
+        hConsoleOutput  HANDLE  ?              ;Guarda o handle padrão de saida
+        hConsoleInput   HANDLE  ?              ;Guarda o handle padrão de entrada
+        Buffer          db      1024 dup(?)    ;Buffer para entrada/saida
+        BufLen          dd      ?              ;Buffer para tamanho de entrada/saida
 .code
  
 start:
  
-        ; ????????? ?????????? ????? ? ?????? ???????
-        invoke  GetStdHandle,   STD_INPUT_HANDLE
-        mov     hConsoleInput,  eax
+        ;Setando os handles padrões
+        invoke  GetStdHandle,   STD_INPUT_HANDLE   ;Coloca o valor do handle padrao de entrada em eax
+        mov     hConsoleInput,  eax                ;move esse valor para a variavel
  
-        invoke  GetStdHandle,   STD_OUTPUT_HANDLE
-        mov     hConsoleOutput, eax
+        invoke  GetStdHandle,   STD_OUTPUT_HANDLE  ;Coloca o valor do handle padrao de saida em eax
+        mov     hConsoleOutput, eax                ;move esse valor para a variavel
 
         
 
 
-        _novoaluno:
-        xor eax,eax
-        mov [contador] , eax
-        invoke  ClearScreen
-        invoke  WriteConsole, hConsoleOutput, ADDR aszBemvindo,\
+        _novoaluno:                                                          ;Início do loop do aluno
+        xor eax,eax                                                          ;Zera eax
+        mov [contador] , eax                                                 ;Zera o contador
+        invoke  ClearScreen                                                  ;Limpa a tela
+        invoke  WriteConsole, hConsoleOutput, ADDR aszBemvindo,\             ;Mensagem de bem vindo
                         LENGTHOF aszBemvindo - 1, ADDR BufLen, NULL
-        ;???? nnotas
-        invoke  WriteConsole, hConsoleOutput, ADDR aszPromptnnotas,\
+        
+        invoke  WriteConsole, hConsoleOutput, ADDR aszPromptnnotas,\         ;Pede para inserir numero de notas
                 LENGTHOF aszPromptnnotas - 1, ADDR BufLen, NULL
-        invoke  ReadConsole, hConsoleInput, ADDR Buffer,\
+        invoke  ReadConsole, hConsoleInput, ADDR Buffer,\                    ;Le o numero de notas
                 LENGTHOF Buffer, ADDR BufLen, NULL
-        lea     esi,    [Buffer]        ;???????? ????????
-        add     esi,    [BufLen]        ;???????? ??????
-        sub     esi,    2               ;?? ?????? ?????
-        mov     [esi], word ptr 0
-        finit
+        lea     esi,    [Buffer]                                             ;Salva o endereço do buffer em esi
+        add     esi,    [BufLen]                                             ;Adiciona o tamanho do buffer em esi (obtendo o endereço do fim da string)
+        sub     esi,    2                                                    ;Subtrai 2 desse endereço tirando o final da string
+        mov     [esi], word ptr 0                                            ;
+        finit                                                                ;Inicialzia a FPU
         invoke  StrToFloat, ADDR Buffer, ADDR nnotas
         
         ;inicializando somatorio
