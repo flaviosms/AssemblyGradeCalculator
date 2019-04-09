@@ -144,7 +144,7 @@ start:
         wait                 ;wait FPU
         fstsw ax             ;copy FPU flags to ax
         sahf                 ;copy ax to CPU flags
-        jb _passou       ;do bigger
+        jbe _passou       ;do bigger
         
         finit
         fld [Result]
@@ -155,13 +155,13 @@ start:
         sahf                 ;copy ax to CPU flags
         jbe _final        ;do bigger
         _reprovou:
-            invoke  WriteConsole, hConsoleOutput, ADDR aszMsgResult,\
-                LENGTHOF aszMsgResult - 1, ADDR BufLen, NULL
+            invoke  WriteConsole, hConsoleOutput, ADDR aszreprovado,\
+                LENGTHOF aszreprovado - 1, ADDR BufLen, NULL
             jmp _fim
 
         _passou:
-            invoke  WriteConsole, hConsoleOutput, ADDR aszreprovado,\
-                LENGTHOF aszreprovado - 1, ADDR BufLen, NULL
+            invoke  WriteConsole, hConsoleOutput, ADDR aszaprovado,\
+                LENGTHOF aszaprovado - 1, ADDR BufLen, NULL
             jmp _fim
         _final:
         invoke  WriteConsole, hConsoleOutput, ADDR aszfinal,\
